@@ -1,0 +1,9 @@
+//src/models/errors/messages/messagesErrorCode.js
+export const MESSAGES_MODEL_ERROR_CODE = {
+  VALIDATION: "VALIDATION",
+  REQUIRED: "REQUIRED",
+  INVALID_DATA: "INVALID_DATA",
+  NOT_FOUND: "NOT_FOUND",
+  NETWORK: "NETWORK",
+  UNKNOWN: "UNKNOWN",
+};
