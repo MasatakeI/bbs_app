@@ -1,3 +1,5 @@
+// src/models/ChannelsModel.js
+
 import {
   addDoc,
   deleteDoc,
@@ -11,7 +13,9 @@ import { channelsCollectionRef } from "../firebase";
 import { ChannelsError } from "./errors/channels/ChannelsError";
 import { CHANNELS_MODEL_ERROR_CODE } from "./errors/channels/channelsErrorCode";
 
-export const createChannel = (id, data) => {
+import { createFirestoreModel } from "./utils/createFirestoreModel";
+
+export const _createChannel = (id, data) => {
   if (!data || typeof data.name !== "string") {
     throw new ChannelsError({ code: CHANNELS_MODEL_ERROR_CODE.INVALID_DATA });
   }
@@ -21,11 +25,16 @@ export const createChannel = (id, data) => {
   };
 };
 
+export const createChannel = createFirestoreModel({
+  createModel: _createChannel,
+  ErrorClass: ChannelsError,
+  invalidDataCode: CHANNELS_MODEL_ERROR_CODE.INVALID_DATA,
+});
+
 export const addChannel = async ({ name }) => {
   if (!name.trim()) {
     throw new ChannelsError({
       code: CHANNELS_MODEL_ERROR_CODE.VALIDATION,
-      message: "チャンネル名は必須です",
     });
   }
 
@@ -68,7 +77,6 @@ export const deleteChannel = async (id) => {
   if (!snapShot.exists()) {
     throw new ChannelsError({
       code: CHANNELS_MODEL_ERROR_CODE.NOT_FOUND,
-      message: "削除対象のチャンネルが存在しません",
     });
   }
 

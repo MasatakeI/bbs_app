@@ -14,9 +14,11 @@ import { messagesCollectionRef } from "../firebase";
 import { MessagesError } from "./errors/messages/MessagesError";
 import { MESSAGES_MODEL_ERROR_CODE } from "./errors/messages/messagesErrorCode";
 
+import { createFirestoreModel } from "./utils/createFirestoreModel";
+
 import { format } from "date-fns";
 
-export const createMessage = (id, data) => {
+export const _createMessage = (id, data) => {
   if (
     !data ||
     typeof data.body !== "string" ||
@@ -34,6 +36,12 @@ export const createMessage = (id, data) => {
     date: dateObj,
   };
 };
+
+export const createMessage = createFirestoreModel({
+  createModel: _createMessage,
+  ErrorClass: MessagesError,
+  invalidDataCode: MESSAGES_MODEL_ERROR_CODE.INVALID_DATA,
+});
 
 export const addMessage = async ({ body }) => {
   if (!body.trim()) {
@@ -81,7 +89,6 @@ export const deleteMessage = async (id) => {
   if (!snapShot.exists()) {
     throw new MessagesError({
       code: MESSAGES_MODEL_ERROR_CODE.NOT_FOUND,
-      message: "削除対象のメッセージがありません",
     });
   }
 
