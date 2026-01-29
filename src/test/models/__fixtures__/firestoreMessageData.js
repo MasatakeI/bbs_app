@@ -5,6 +5,7 @@ import { buildMessage } from "./buildMessage";
 export const mockMessages = [
   buildMessage({
     id: 1,
+
     body: "test body1",
     iso: "2020-01-01T12:00:00",
   }),
@@ -22,6 +23,7 @@ export const mockMessages = [
 
 export const newMessage = buildMessage({
   id: 4,
+
   body: "test body4",
   iso: "2020-01-04T12:00:00",
 });

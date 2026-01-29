@@ -1,8 +1,9 @@
-import { format, toDate } from "date-fns";
+import { format } from "date-fns";
 
-export const buildMessage = ({ id, body, iso }) => {
+export const buildMessage = ({ id, channelId, body, iso }) => {
   return {
     id,
+
     body,
     date: {
       toDate: () => new Date(iso),

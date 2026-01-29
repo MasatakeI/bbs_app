@@ -7,7 +7,7 @@ import {
   addChannel,
   fetchChannels,
   deleteChannel,
-} from "@/models/ChannelsModel";
+} from "@/models/channels/ChannelsModel";
 
 import { newChannel } from "./__fixtures__/firestoreChannelData";
 import { ChannelsError } from "@/models/errors/channels/ChannelsError";

@@ -1,5 +1,11 @@
 ① UI 用メッセージマップを作る
 
+Model : Firestore / Error正規化
+Thunk : async orchestration
+Middleware : 横断的UI副作用（snackbar）
+Slice : state遷移のみ
+Selector : 表示用加工
+
 # クイズアプリ 開発ログ / 設計メモ
 
 本ドキュメントは README（仕様書）とは分離し、

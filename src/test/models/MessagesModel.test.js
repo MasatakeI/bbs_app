@@ -7,7 +7,7 @@ import {
   addMessage,
   fetchMessages,
   deleteMessage,
-} from "@/models/MessagesModel";
+} from "@/models/messages/MessagesModel";
 
 import { newMessage } from "./__fixtures__/firestoreMessageData";
 
@@ -21,6 +21,7 @@ import {
 } from "firebase/firestore";
 import { MessagesError } from "@/models/errors/messages/MessagesError";
 import { MESSAGES_MODEL_ERROR_CODE } from "@/models/errors/messages/messagesErrorCode";
+import { getChannelMessages } from "@/firebase";
 
 vi.mock("firebase/firestore", () => ({
   addDoc: vi.fn(),
@@ -36,6 +37,10 @@ vi.mock("firebase/firestore", () => ({
   collection: vi.fn(),
 }));
 
+vi.mock("@/firebase", () => ({
+  getChannelMessages: vi.fn(() => "mock-collection-ref"),
+}));
+
 const mockDocRef = { id: newMessage.id };
 
 const mockSnapShot = {
@@ -46,6 +51,8 @@ const mockSnapShot = {
 };
 
 const mockQuery = {};
+
+const mockChannelId = "general";
 
 // ヘルパー関数
 const expectMessage = (message) => {
@@ -89,9 +96,17 @@ describe("MessagesModel", () => {
     test("正常系:messageを追加し,追加したmessageを返す", async () => {
       mockAddMessageSuccess();
 
-      const result = await addMessage({ body: newMessage.body });
+      const result = await addMessage({
+        body: newMessage.body,
+        channelId: mockChannelId,
+      });
 
       expect(result).toEqual(expectMessage(newMessage));
+
+      expect(addDoc).toHaveBeenCalledWith(
+        "mock-collection-ref",
+        expect.any(Object),
+      );
     });
 
     describe("異常系", () => {
@@ -113,7 +128,9 @@ describe("MessagesModel", () => {
         },
       ])(`$title `, async ({ body, setup, code }) => {
         setup?.();
-        await expect(addMessage({ body })).rejects.toThrow(
+        await expect(
+          addMessage({ body, channelId: mockChannelId }),
+        ).rejects.toThrow(
           new MessagesError({
             code,
           }),
@@ -129,8 +146,10 @@ describe("MessagesModel", () => {
         docs: [{ id: mockSnapShot.data().id, data: () => mockSnapShot.data() }],
       });
 
-      const result = await fetchMessages();
+      const result = await fetchMessages(mockChannelId);
       expect(result).toEqual([expectMessage(mockSnapShot.data())]);
+
+      expect(getChannelMessages).toHaveBeenCalledWith(mockChannelId);
     });
 
     test("異常系:データがない場合,空配列を返す", async () => {
@@ -139,7 +158,7 @@ describe("MessagesModel", () => {
         docs: [],
       });
 
-      const result = await fetchMessages();
+      const result = await fetchMessages(mockChannelId);
       expect(result).toEqual([]);
     });
   });
@@ -150,10 +169,14 @@ describe("MessagesModel", () => {
       getDoc.mockResolvedValue(mockSnapShot);
       deleteDoc.mockResolvedValue();
 
-      const result = await deleteMessage(mockSnapShot.data().id);
+      const result = await deleteMessage(mockSnapShot.data().id, mockChannelId);
       expect(result).toEqual(expectMessage(mockSnapShot.data()));
 
-      expect(doc).toHaveBeenCalledTimes(1);
+      expect(doc).toHaveBeenCalledWith(
+        "mock-collection-ref",
+        mockSnapShot.data().id,
+      );
+
       expect(getDoc).toHaveBeenCalledWith(mockDocRef);
       expect(deleteDoc).toHaveBeenCalledWith(mockDocRef);
     });
@@ -163,7 +186,7 @@ describe("MessagesModel", () => {
       getDoc.mockResolvedValue({ exists: () => false });
       deleteDoc.mockResolvedValue();
 
-      await expect(deleteMessage(1)).rejects.toThrow(
+      await expect(deleteMessage(1, mockChannelId)).rejects.toThrow(
         new MessagesError({ code: MESSAGES_MODEL_ERROR_CODE.NOT_FOUND }),
       );
     });
