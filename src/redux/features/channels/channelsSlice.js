@@ -6,6 +6,7 @@ import {
 } from "./channelsThunks";
 
 export const channelsInitialState = {
+  canPost: true,
   isLoading: false,
   channels: [],
   error: null,
@@ -21,10 +22,10 @@ const channelsSlice = createSlice({
     builder
       //addChannel
       .addCase(addChannelAsync.pending, (state, action) => {
-        state.isLoading = true;
+        state.canPost = false;
       })
       .addCase(addChannelAsync.fulfilled, (state, action) => {
-        state.isLoading = false;
+        state.canPost = true;
         state.channels.push(action.payload);
         state.error = null;
       })
@@ -54,6 +55,7 @@ const channelsSlice = createSlice({
 
       //rejected共通処理
       .addMatcher(isRejectedWithValue, (state, action) => {
+        state.canPost = true;
         state.isLoading = false;
 
         state.error = action.payload;

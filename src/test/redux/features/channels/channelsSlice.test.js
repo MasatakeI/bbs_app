@@ -29,6 +29,7 @@ const applyRejected = (slice, thunk, error, prev) =>
 describe("channelsSlice", () => {
   test("初期stateの確認", () => {
     expect(channelsInitialState).toEqual({
+      canPost: true,
       isLoading: false,
       channels: [],
       error: null,
@@ -39,7 +40,7 @@ describe("channelsSlice", () => {
   describe("正常系:pendingからfulfilledに遷移し状態を更新する", () => {
     test("addChannelAsync:isLoadingをfalseに戻し,channelsにpayloadを追加する", async () => {
       const pending = applyPending(channelsSlice, addChannelAsync);
-      expect(pending).toEqual({ ...channelsInitialState, isLoading: true });
+      expect(pending).toEqual({ ...channelsInitialState, canPost: false });
 
       const fulfilled = applyFulfilled(
         channelsSlice,
@@ -48,7 +49,8 @@ describe("channelsSlice", () => {
       );
       expect(fulfilled).toEqual({
         ...pending,
-        isLoading: false,
+        canPost: true,
+
         channels: [newChannel],
         error: null,
       });

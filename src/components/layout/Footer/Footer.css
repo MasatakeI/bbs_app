@@ -1,0 +1,41 @@
+.footer {
+  background-color: #f8f9fa; /* Headerの色に合わせて調整してください */
+  padding: 10px 0;
+  box-sizing: border-box;
+  border-top: 1px solid #e0e0e0;
+
+  width: 100%;
+  max-height: 60px;
+  position: fixed;
+  bottom: 0;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* gap: -10px; */
+}
+
+.footer-links {
+  display: flex;
+  gap: 20px;
+}
+
+.footer-links a {
+  text-decoration: none;
+  color: #666;
+  font-size: 14px;
+  transition: color 0.2s;
+  cursor: pointer;
+}
+
+.footer-links a:hover {
+  color: #1976d2; /* Material UIのデフォルトブルーに近い色 */
+}
+
+.copyright {
+  margin: 5px;
+  font-size: 12px;
+  color: #999;
+}

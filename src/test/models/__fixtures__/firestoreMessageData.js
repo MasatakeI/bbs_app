@@ -5,19 +5,18 @@ import { buildMessage } from "./buildMessage";
 export const mockMessages = [
   buildMessage({
     id: 1,
-
     body: "test body1",
-    iso: "2020-01-01T12:00:00",
+    iso: "2020/01/01 12:00",
   }),
   buildMessage({
     id: 2,
     body: "test body2",
-    iso: "2020-01-02T12:00:00",
+    iso: "2020/01/02 12:00",
   }),
   buildMessage({
     id: 3,
     body: "test body3",
-    iso: "2020-01-03T12:00:00",
+    iso: "2020/01/03 12:00",
   }),
 ];
 

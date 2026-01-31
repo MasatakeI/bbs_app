@@ -1,0 +1,18 @@
+.message-card {
+  padding: 10px;
+  box-sizing: border-box;
+  background-color: #eee;
+  margin: 5px 10px;
+  border-radius: 5px;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.8rem;
+}
+.message-button {
+  border: none;
+  cursor: pointer;
+}

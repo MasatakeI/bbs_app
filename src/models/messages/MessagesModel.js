@@ -32,9 +32,11 @@ export const _createMessage = (id, data) => {
   }
 
   const dateObj = format(data.date.toDate(), "yyyy/MM/dd HH:mm");
+
   return {
     id,
     body: data.body,
+    // date: data.date.toDate().toLocaleString(),
     date: dateObj,
   };
 };
@@ -50,6 +52,7 @@ export const addMessage = async ({ body, channelId }) => {
     if (!body.trim()) {
       throw new MessagesError({
         code: MESSAGES_MODEL_ERROR_CODE.VALIDATION,
+        message: "1文字以上のメッセージを入力してください",
       });
     }
 
@@ -63,6 +66,7 @@ export const addMessage = async ({ body, channelId }) => {
     if (!snapShot.exists()) {
       throw new MessagesError({
         code: MESSAGES_MODEL_ERROR_CODE.UNKNOWN,
+        message: "メッセージの追加に失敗しました",
       });
     }
 
@@ -77,7 +81,7 @@ export const addMessage = async ({ body, channelId }) => {
 
 export const fetchMessages = async (channelId) => {
   try {
-    const q = query(getChannelMessages(channelId), orderBy("date"));
+    const q = query(getChannelMessages(channelId), orderBy("date", "desc"));
 
     const querySnapshot = await getDocs(q);
 

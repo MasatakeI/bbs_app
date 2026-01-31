@@ -1,3 +1,5 @@
+export const selectChannelsCanPost = (state) => state.channels.canPost;
+
 export const selectChannelsIsLoading = (state) => state.channels.isLoading;
 export const selectAllChannels = (state) => state.channels.channels;
 export const selectChannelsError = (state) => state.channels.error;

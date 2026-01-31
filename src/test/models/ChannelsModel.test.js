@@ -93,6 +93,7 @@ describe("ChannelsModel", () => {
           setup: () => {},
           name: " ",
           code: CHANNELS_MODEL_ERROR_CODE.VALIDATION,
+          message: "1文字以上のチャンネル名を入力してください",
         },
         {
           title: "データが存在しない場合",
@@ -102,13 +103,15 @@ describe("ChannelsModel", () => {
           },
           name: "aa",
           code: CHANNELS_MODEL_ERROR_CODE.UNKNOWN,
+          message: "チャンネルがありません",
         },
-      ])("$title", async ({ setup, name, code }) => {
+      ])("$title", async ({ setup, name, code, message }) => {
         setup?.();
 
         await expect(addChannel({ name })).rejects.toThrow(
           new ChannelsError({
             code,
+            message,
           }),
         );
       });

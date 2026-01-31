@@ -29,6 +29,7 @@ const applyRejected = (slice, thunk, error, prev) =>
 describe("messagesSlice", () => {
   test("初期stateのテスト", () => {
     expect(messagesInitialState).toEqual({
+      canPost: true,
       isLoading: false,
       messages: [],
       error: null,
@@ -38,11 +39,11 @@ describe("messagesSlice", () => {
 
   describe("正常系:pendingからfulfilledに遷移する", () => {
     describe("addMessageAsync", () => {
-      test("isLoadingがfalseに戻り,messageを追加する", async () => {
+      test("canPostがtrueに戻り,messageを追加する", async () => {
         const pending = applyPending(messagesSlice, addMessageAsync);
         expect(pending).toEqual({
           ...messagesInitialState,
-          isLoading: true,
+          canPost: false,
         });
 
         const fulfilled = applyFulfilled(
@@ -54,7 +55,7 @@ describe("messagesSlice", () => {
         expect(fulfilled).toEqual({
           ...pending,
           messages: [newMessage],
-          isLoading: false,
+          canPost: true,
           error: null,
         });
       });
@@ -137,6 +138,7 @@ describe("messagesSlice", () => {
 
       expect(rejected).toEqual({
         ...pending,
+        canPost: true,
         isLoading: false,
         error,
         isDeleting: false,

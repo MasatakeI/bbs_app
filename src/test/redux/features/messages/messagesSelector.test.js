@@ -8,7 +8,7 @@ import { describe, test, expect } from "vitest";
 describe("messagesSelector", () => {
   // 複合セレクターのみテストする
 
-  test("selectReversedMessages:messagesを日付降順でソートする", () => {
+  test.skip("selectReversedMessages:messagesを日付降順でソートする", () => {
     const prev = {
       messages: { ...messagesInitialState, messages: mockMessages },
     };

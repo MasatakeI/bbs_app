@@ -1,0 +1,23 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`MainPage > 正常系のレイアウトが崩れていないこと 1`] = `
+<DocumentFragment>
+  <div
+    class="main"
+  >
+    <div
+      data-testid="message-textbox"
+    >
+      MessageTextBox:general
+    </div>
+    <div
+      class="divider"
+    />
+    <div
+      data-testid="messages-list"
+    >
+      MessagesList:general
+    </div>
+  </div>
+</DocumentFragment>
+`;

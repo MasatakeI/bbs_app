@@ -1,0 +1,69 @@
+/* 基本スタイル */
+.button {
+  width: 100%;
+  padding: 12px 4px;
+  font-size: 1rem;
+  font-weight: 600; /* 太すぎず読みやすい太さ */
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  /* transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); */
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.03em;
+}
+
+/* ホバー時の動き：少しだけ色を濃くし、影を落とす */
+.button:hover:not(:disabled) {
+  filter: brightness(0.92);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: scale(1.01);
+}
+
+/* クリック時：少し沈む */
+.button:active:not(:disabled) {
+  transform: scale(0.98);
+  box-shadow: none;
+}
+
+/* 無効化状態：背景を薄いグレーに */
+.button:disabled {
+  background-color: #d4d9e0;
+  color: #6d7b8f;
+  cursor: not-allowed;
+  transform: none;
+  transition: none;
+}
+
+/* --- バリエーション：彩度を抑えた落ち着いたトーン --- */
+
+/* Primary: 誠実なブルーグレー */
+.button-primary {
+  background-color: #5a7d9a;
+}
+
+/* Secondary: 落ち着いたセージグリーン */
+.button-secondary {
+  background-color: #6b8e85;
+}
+
+/* Tertiary: 馴染みの良いテラコッタ・ローズ */
+.button-tertiary {
+  background-color: #a67c7c;
+}
+
+/* Quaternary: 重厚感のあるチャコール */
+.button-quaternary {
+  background-color: #4a5568;
+}
+
+/* 選択中のスタイル：枠線を追加して明示 */
+.button-active {
+  box-shadow:
+    0 0 0 3px #fff,
+    0 0 0 6px rgba(90, 125, 154, 0.4);
+  transform: scale(1.02);
+}

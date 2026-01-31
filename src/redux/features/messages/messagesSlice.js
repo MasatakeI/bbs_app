@@ -9,6 +9,7 @@ import {
 import { createSlice, isRejectedWithValue } from "@reduxjs/toolkit";
 
 export const messagesInitialState = {
+  canPost: true,
   isLoading: false,
   messages: [],
   error: null,
@@ -18,16 +19,19 @@ export const messagesInitialState = {
 const messsagesSlice = createSlice({
   name: "messages",
   initialState: messagesInitialState,
+  reducers: {
+    clearMessagesState: (state) => messagesInitialState,
+  },
 
   extraReducers: (builder) => {
     builder
       //addMessageAsync
       .addCase(addMessageAsync.pending, (state, action) => {
-        state.isLoading = true;
+        state.canPost = false;
       })
       .addCase(addMessageAsync.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.messages.push(action.payload);
+        state.canPost = true;
+        state.messages.unshift(action.payload);
         state.error = null;
       })
 
@@ -56,11 +60,14 @@ const messsagesSlice = createSlice({
 
       //rejected共通処理
       .addMatcher(isRejectedWithValue, (state, action) => {
+        state.canPost = true;
         state.isLoading = false;
         state.error = action.payload;
         state.isDeleting = false;
       });
   },
 });
+
+export const { clearMessagesState } = messsagesSlice.actions;
 
 export default messsagesSlice.reducer;

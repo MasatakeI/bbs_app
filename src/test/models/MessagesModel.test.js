@@ -17,11 +17,14 @@ import {
   doc,
   getDoc,
   getDocs,
+  orderBy,
   query,
 } from "firebase/firestore";
 import { MessagesError } from "@/models/errors/messages/MessagesError";
 import { MESSAGES_MODEL_ERROR_CODE } from "@/models/errors/messages/messagesErrorCode";
 import { getChannelMessages } from "@/firebase";
+
+import { format } from "date-fns";
 
 vi.mock("firebase/firestore", () => ({
   addDoc: vi.fn(),
@@ -59,7 +62,7 @@ const expectMessage = (message) => {
   return {
     id: message.id,
     body: message.body,
-    date: message.formattedDate,
+    date: message.expectedDate,
   };
 };
 
@@ -119,20 +122,23 @@ describe("MessagesModel", () => {
           },
           body: mockSnapShot.data().body,
           code: MESSAGES_MODEL_ERROR_CODE.UNKNOWN,
+          message: "メッセージの追加に失敗しました",
         },
         {
           title: "bodyが空",
           setup: () => {},
           body: "  ",
           code: MESSAGES_MODEL_ERROR_CODE.VALIDATION,
+          message: "1文字以上のメッセージを入力してください",
         },
-      ])(`$title `, async ({ body, setup, code }) => {
+      ])(`$title `, async ({ body, setup, code, message }) => {
         setup?.();
         await expect(
           addMessage({ body, channelId: mockChannelId }),
         ).rejects.toThrow(
           new MessagesError({
             code,
+            message,
           }),
         );
       });
@@ -150,6 +156,10 @@ describe("MessagesModel", () => {
       expect(result).toEqual([expectMessage(mockSnapShot.data())]);
 
       expect(getChannelMessages).toHaveBeenCalledWith(mockChannelId);
+      expect(query).toHaveBeenCalledWith(
+        "mock-collection-ref",
+        orderBy("date", "desc"),
+      );
     });
 
     test("異常系:データがない場合,空配列を返す", async () => {

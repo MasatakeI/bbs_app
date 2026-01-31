@@ -37,6 +37,7 @@ export const addChannel = async ({ name }) => {
     if (!name.trim()) {
       throw new ChannelsError({
         code: CHANNELS_MODEL_ERROR_CODE.VALIDATION,
+        message: "1文字以上のチャンネル名を入力してください",
       });
     }
 
@@ -50,6 +51,7 @@ export const addChannel = async ({ name }) => {
     if (!snapShot.exists()) {
       throw new ChannelsError({
         code: CHANNELS_MODEL_ERROR_CODE.UNKNOWN,
+        message: "チャンネルがありません",
       });
     }
 
@@ -74,6 +76,7 @@ export const fetchChannels = async () => {
 
     return querySnapshot.docs.map((doc) => createChannel(doc.id, doc.data()));
   } catch (error) {
+    console.error(error);
     throw mapFirestoreErrorToChannelsError(error);
   }
 };

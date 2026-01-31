@@ -1,0 +1,53 @@
+.header {
+  position: fixed;
+  width: 100%;
+  height: 70px;
+  background: linear-gradient(135deg, #244d76, #3a6ea5, #1b2f4a);
+  color: #fff;
+
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.3s ease;
+
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+}
+
+.header.scrolled {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(135deg, #1e3f63, #2f5f91, #16263c);
+}
+
+.logo {
+  text-decoration: none;
+  color: #fff;
+  font-size: 2rem;
+  font-weight: bold;
+  padding-left: 16px;
+  letter-spacing: 0.1rem;
+
+  transition: all ease 0.3s;
+}
+
+/* .logo:hover {
+  transform: translateY(-1px) scale(1.02);
+} */
+
+@media (max-width: 768px) {
+  .header {
+    height: 60px;
+  }
+
+  .logo {
+    font-size: 1.5rem;
+    padding-left: 12px;
+    letter-spacing: 0.05rem;
+  }
+}
+
+/* 小型スマホ */
+@media (max-width: 480px) {
+  .logo {
+    font-size: 1.3rem;
+  }
+}
