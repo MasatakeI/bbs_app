@@ -1,7 +1,8 @@
 .main {
   position: absolute;
-  left: 150px;
-  width: calc((100% - 150px));
+  left: 170px;
+  width: 100%;
+  width: calc((100% - 170px));
 }
 
 .divider {

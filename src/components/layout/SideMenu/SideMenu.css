@@ -1,26 +1,109 @@
 .side-menu {
   position: fixed;
-  width: 149px;
-  background-color: #eee;
+  width: 170px; /* 少し幅を広げてゆとりを */
+  background-color: #2c3e50; /* ダークネイビーで引き締める */
+  color: #ecf0f1;
   height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
 .menu-list {
   list-style: none;
   margin: 0;
-  padding: 0;
-  text-align: center;
+  padding: 10px 0;
+  overflow-y: auto;
 }
 
 .menu-item {
-  height: 50px;
-  line-height: 50px;
-  border-bottom: 1px solid #ccc;
-  cursor: pointer;
+  position: relative;
+  height: 44px;
+  line-height: 44px;
+  margin: 4px 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
 }
 
 .menu-item-link {
+  flex-grow: 1;
+  padding-left: 15px;
   text-decoration: none;
-  color: #000;
-  font-size: 0.8rem;
+  color: #bdc3c7;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left; /* 左寄せの方が読みやすい */
+}
+
+/* ホバー・アクティブ時のスタイル */
+.menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-item-link.active {
+  background-color: #3498db; /* アクセントカラーの青 */
+  color: #fff;
+  font-weight: bold;
+}
+
+/* 削除ボタンの隠し味：通常は透明、ホバーで表示 */
+.channel-delete-button {
+  border: none;
+  background: transparent;
+  color: #e74c3c;
+  padding: 0 10px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+  height: 100%;
+}
+
+.menu-item:hover .channel-delete-button {
+  opacity: 1;
+}
+
+.channel-delete-button:hover {
+  background-color: rgba(231, 76, 60, 0.2);
+  color: #ff7675;
+}
+
+/* 下部アクションボタンエリア */
+.action-button-container {
+  padding: 20px;
+  background-color: #2c3e50; /* リストが重なっても見えないよう背景色を指定 */
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.action-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background-color: #3498db;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.action-button.cancel {
+  background-color: #95a5a6;
+  transform: rotate(0deg);
+}
+
+.action-button:hover {
+  transform: scale(1.1);
+}
+
+.menu-form-container {
+  padding: 10px;
 }

@@ -24,21 +24,21 @@ const MessagesList = ({ channelId }) => {
   const [targetId, setTargetId] = useState(null);
 
   const handleDelete = () => {
-    dispatch(deleteMessageAsync({ id: targetId, channelId }));
     setModalOpen(false);
+    dispatch(deleteMessageAsync({ id: targetId, channelId }));
   };
 
   const messagesContent = () => {
     if (isLoading) {
       return (
-        <>
+        <div className="message-spinner">
           <LoadingSpinner />
-        </>
+        </div>
       );
     }
 
     if (messages.length === 0) {
-      return <p>該当する メッセージ がありません</p>;
+      return <p className="no-message">該当する メッセージ がありません</p>;
     }
 
     return (

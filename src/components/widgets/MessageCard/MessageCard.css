@@ -9,10 +9,26 @@
 .message-header {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   font-size: 0.8rem;
 }
 .message-button {
   border: none;
+  background-color: inherit;
+
   cursor: pointer;
+}
+
+.message-button:active {
+  transform: scale(0.92);
+}
+
+.message-button.delete:hover {
+  color: red;
+}
+
+.message-body {
+  text-align: left;
+  word-break: break-all;
+  letter-spacing: 0.05rem;
 }

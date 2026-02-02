@@ -1,48 +1,56 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./SideMenu.css";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectAllChannels,
-  selectChannelsError,
   selectChannelsIsLoading,
 } from "@/redux/features/channels/channelsSelector";
 
 import { NavLink } from "react-router";
-import { fetchChannelsAsync } from "@/redux/features/channels/channelsThunks";
+import {
+  deleteChannelAsync,
+  fetchChannelsAsync,
+} from "@/redux/features/channels/channelsThunks";
 
 import LoadingSpinner from "@/components/common/LoadingSpinner/LoadingSpinner";
-import Button from "@/components/common/Button/Button";
-import ChannelTextBox from "@/components/widgets/TextBox/ChannelTextBox";
+import ChannelForm from "@/components/widgets/Form/ChannelForm";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faTrash, faXmark } from "@fortawesome/free-solid-svg-icons";
+import Modal from "@/components/common/Modal/Modal";
 
 const SideMenu = () => {
   const dispatch = useDispatch();
   const channels = useSelector(selectAllChannels);
   const isLoading = useSelector(selectChannelsIsLoading);
-  const error = useSelector(selectChannelsError);
+
+  const [textBoxOpen, setTextBoxOpen] = useState(false);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [targetId, setTargetId] = useState("");
 
   useEffect(() => {
     dispatch(fetchChannelsAsync());
   }, [dispatch]);
 
+  const confirmDelete = async () => {
+    await dispatch(deleteChannelAsync({ id: targetId })).unwrap();
+    setIsModalOpen(false);
+  };
+
   const channelsContent = () => {
-    // if (error) {
-    //   return (
-    //     <button onClick={() => dispatch(fetchChannelsAsync())}>
-    //       再読み込み
-    //     </button>
-    //   );
-    // }
     if (isLoading) {
       return (
-        <>
+        <div className="channel-spinner">
           <LoadingSpinner />
-        </>
+        </div>
       );
     }
 
     return (
-      <>
+      <div className="side-menu">
         <ul className="menu-list">
           {channels.map(({ id, name }) => {
             return (
@@ -52,21 +60,60 @@ const SideMenu = () => {
                   className={({ isActive }) =>
                     isActive ? "menu-item-link active" : "menu-item-link"
                   }
-                  role="link"
-                  aria-label="channel-name"
                 >
                   {name}
                 </NavLink>
+                <button
+                  onClick={() => {
+                    setIsModalOpen(true);
+                    setModalMessage(name);
+                    setTargetId(id);
+                  }}
+                  className="channel-delete-button"
+                  title="削除"
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
               </li>
             );
           })}
         </ul>
-        <ChannelTextBox />
-      </>
+
+        <div className="action-button-container">
+          <button
+            onClick={
+              textBoxOpen
+                ? () => setTextBoxOpen(false)
+                : () => setTextBoxOpen(true)
+            }
+            className={`action-button ${!textBoxOpen ? "add" : "cancel"}`}
+          >
+            <FontAwesomeIcon icon={!textBoxOpen ? faPlus : faXmark} />
+          </button>
+        </div>
+
+        <div className="menu-form-container">
+          <ChannelForm
+            isOpen={textBoxOpen}
+            onClose={() => setTextBoxOpen(false)}
+          />
+        </div>
+      </div>
     );
   };
 
-  return <div className="side-menu">{channelsContent()}</div>;
+  return (
+    <div className="side-menu">
+      {channelsContent()}{" "}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={"このチャンネルを削除しますか?"}
+        message={modalMessage}
+        onConfirm={confirmDelete}
+      />
+    </div>
+  );
 };
 
 export default SideMenu;

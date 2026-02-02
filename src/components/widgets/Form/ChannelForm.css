@@ -1,0 +1,44 @@
+.channel-form-container {
+  position: relative;
+  padding: 16px;
+  background-color: #f8f9fa;
+  /* background-color: red; */
+  border-radius: 8px;
+  /* margin-bottom: 20px; */
+  border: 1px solid #e9ecef;
+}
+
+.channel-form-title {
+  margin-top: 0;
+  font-size: 0.9rem;
+  color: #495057;
+  margin-bottom: 12px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.channel-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ID入力欄のスタイル */
+.channel-input {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.channel-input:focus {
+  border-color: #244d76;
+}
+
+.channel-form-button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

@@ -1,0 +1,12 @@
+.message-input {
+  height: 80px;
+}
+
+.message-input::placeholder {
+  font-size: 0.9rem;
+}
+
+.message-text-button {
+  text-align: right;
+  margin-top: 20px;
+}

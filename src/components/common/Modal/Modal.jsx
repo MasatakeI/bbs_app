@@ -23,6 +23,7 @@ export default function Modal({ isOpen, onClose, title, message, onConfirm }) {
         }}
         onClose={onClose}
         aria-describedby="alert-dialog-slide-description"
+        disableRestoreFocus
       >
         <DialogTitle>{title}</DialogTitle>
         <DialogContent>

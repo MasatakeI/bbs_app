@@ -11,8 +11,8 @@ import { showSnackbar } from "../snackbar/snackbarSlice";
 
 export const addChannelAsync = createModelThunk(
   "channels/addChannel",
-  async ({ name }, thunkApi) => {
-    const channel = await addChannel({ name });
+  async ({ id, name }, thunkApi) => {
+    const channel = await addChannel({ id, name });
     thunkApi.dispatch(showSnackbar(`${channel.name}を追加しました`));
     return channel;
   },

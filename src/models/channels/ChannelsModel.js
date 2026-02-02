@@ -8,8 +8,15 @@ import {
   getDocs,
   orderBy,
   query,
+  setDoc,
+  writeBatch,
 } from "firebase/firestore";
-import { channelsCollectionRef } from "@/firebase/index";
+
+import {
+  channelsCollectionRef,
+  getChannelMessages,
+  messagesCollectionRef,
+} from "@/firebase/index";
 import { ChannelsError } from "../errors/channels/ChannelsError";
 import { CHANNELS_MODEL_ERROR_CODE } from "../errors/channels/channelsErrorCode";
 
@@ -32,34 +39,38 @@ export const createChannel = createFirestoreModel({
   invalidDataCode: CHANNELS_MODEL_ERROR_CODE.INVALID_DATA,
 });
 
-export const addChannel = async ({ name }) => {
+export const addChannel = async ({ id, name }) => {
   try {
-    if (!name.trim()) {
+    if (!id.trim() || !name.trim()) {
       throw new ChannelsError({
         code: CHANNELS_MODEL_ERROR_CODE.VALIDATION,
-        message: "1文字以上のチャンネル名を入力してください",
+        message: "IDとチャンネル名をどちらも入力してください",
       });
     }
 
-    const postData = {
-      name,
-    };
-
-    const docRef = await addDoc(channelsCollectionRef, postData);
-    const snapShot = await getDoc(docRef);
-
-    if (!snapShot.exists()) {
+    const alphanumericRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!alphanumericRegex.test(id)) {
       throw new ChannelsError({
-        code: CHANNELS_MODEL_ERROR_CODE.UNKNOWN,
-        message: "チャンネルがありません",
+        code: CHANNELS_MODEL_ERROR_CODE.VALIDATION,
+        message:
+          "チャンネルIDは半角英数字、ハイフン、アンダースコアのみ使用可能です",
       });
     }
 
-    const data = snapShot.data();
+    const docRef = doc(channelsCollectionRef, id);
 
-    const model = createChannel(docRef.id, data);
+    const snapShot = await getDoc(docRef);
+    if (snapShot.exists()) {
+      throw new ChannelsError({
+        code: CHANNELS_MODEL_ERROR_CODE.ALREADY_EXISTS,
+        message: "指定されたIDのチャンネルは既に存在します",
+      });
+    }
 
-    return model;
+    const postData = { name };
+    await setDoc(docRef, postData);
+
+    return createChannel(id, postData);
   } catch (error) {
     throw mapFirestoreErrorToChannelsError(error);
   }
@@ -76,7 +87,6 @@ export const fetchChannels = async () => {
 
     return querySnapshot.docs.map((doc) => createChannel(doc.id, doc.data()));
   } catch (error) {
-    console.error(error);
     throw mapFirestoreErrorToChannelsError(error);
   }
 };
@@ -84,7 +94,6 @@ export const fetchChannels = async () => {
 export const deleteChannel = async (id) => {
   try {
     const docRef = doc(channelsCollectionRef, id);
-
     const snapShot = await getDoc(docRef);
 
     if (!snapShot.exists()) {
@@ -94,10 +103,18 @@ export const deleteChannel = async (id) => {
     }
 
     const data = snapShot.data();
-
     const model = createChannel(docRef.id, data);
 
-    await deleteDoc(docRef);
+    const messagesSnap = await getDocs(getChannelMessages(id));
+
+    const batch = writeBatch(channelsCollectionRef.firestore);
+
+    messagesSnap.forEach((messageDoc) => {
+      batch.delete(messageDoc.ref);
+    });
+
+    batch.delete(docRef);
+    await batch.commit();
 
     return model;
   } catch (error) {

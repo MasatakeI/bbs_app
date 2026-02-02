@@ -8,13 +8,11 @@ const Button = ({
   onClickHandler,
   variant = "primary",
   clickable = true,
-  isActive,
 }) => {
   const baseClass = "button";
   const variantClass = `button-${variant}`;
-  const activeClass = isActive ? "button-active" : "";
 
-  const classes = [baseClass, variantClass, activeClass];
+  const classes = [baseClass, variantClass];
 
   const buttonClass = classes.filter(Boolean).join(" ");
 
@@ -23,8 +21,6 @@ const Button = ({
       className={buttonClass}
       onClick={onClickHandler}
       disabled={!clickable}
-      aria-pressed={isActive}
-      data-active={isActive}
     >
       {children}
     </button>

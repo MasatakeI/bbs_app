@@ -10,6 +10,8 @@ const BaseTextBox = ({
   placeholder,
   buttonLabel,
   canSubmit,
+  inputClassName,
+  buttonClassName,
 }) => {
   return (
     <div className="textbox">
@@ -19,10 +21,10 @@ const BaseTextBox = ({
         placeholder={placeholder}
         role="textbox"
         aria-label="textbox"
-        className="textbox-input"
+        className={`textbox-input ${inputClassName}`}
       ></textarea>
 
-      <div className="textbox-button">
+      <div className={`textbox-button ${buttonClassName}`}>
         <Button onClickHandler={onSubmit} clickable={canSubmit}>
           {buttonLabel}
         </Button>

@@ -21,16 +21,16 @@ const MessageTextBox = ({ channelId }) => {
   };
 
   return (
-    <>
-      <BaseTextBox
-        value={body}
-        onChange={(e) => setBody(e.target.value)}
-        onSubmit={post}
-        placeholder={"ここに入力"}
-        buttonLabel={"投稿"}
-        canSubmit={canPost}
-      />
-    </>
+    <BaseTextBox
+      value={body}
+      onChange={(e) => setBody(e.target.value)}
+      onSubmit={post}
+      placeholder={"ここに入力"}
+      buttonLabel={"投稿"}
+      canSubmit={canPost}
+      inputClassName="message-input"
+      buttonClassName="message-text-button"
+    />
   );
 };
 
