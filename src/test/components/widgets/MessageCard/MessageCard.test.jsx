@@ -24,7 +24,9 @@ describe("MessageCard", () => {
 
     expect(screen.getByText("test message")).toBeInTheDocument();
     expect(screen.getByText("2020/01/01 12:00")).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "icon" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "メッセージを削除" }),
+    ).toBeInTheDocument();
   });
 
   test("削除ボタンを押すとonDeleteハンドラが呼ばれる", async () => {
@@ -38,7 +40,9 @@ describe("MessageCard", () => {
     );
 
     const user = userEvent.setup();
-    const deleteButton = screen.getByRole("img", { name: "icon" });
+    const deleteButton = screen.getByRole("button", {
+      name: "メッセージを削除",
+    });
 
     await user.click(deleteButton);
 

@@ -12,11 +12,7 @@ import {
   writeBatch,
 } from "firebase/firestore";
 
-import {
-  channelsCollectionRef,
-  getChannelMessages,
-  messagesCollectionRef,
-} from "@/firebase/index";
+import { channelsCollectionRef, getChannelMessages } from "@/firebase/index";
 import { ChannelsError } from "../errors/channels/ChannelsError";
 import { CHANNELS_MODEL_ERROR_CODE } from "../errors/channels/channelsErrorCode";
 
@@ -25,7 +21,10 @@ import { mapFirestoreErrorToChannelsError } from "./mapFirestoreErrorToChannelsE
 
 export const _createChannel = (id, data) => {
   if (!data || typeof data.name !== "string") {
-    throw new ChannelsError({ code: CHANNELS_MODEL_ERROR_CODE.INVALID_DATA });
+    throw new ChannelsError({
+      code: CHANNELS_MODEL_ERROR_CODE.INVALID_DATA,
+      message: "無効な値です",
+    });
   }
   return {
     id,

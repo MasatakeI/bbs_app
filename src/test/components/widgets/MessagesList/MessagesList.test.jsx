@@ -65,10 +65,15 @@ describe("MessagesList", () => {
       },
     );
 
-    await user.click(screen.getAllByRole("button", { name: "削除" })[0]);
-    await user.click(screen.getByRole("button", { name: "削除" }));
+    const deleteButton = screen.getAllByRole("button", {
+      name: "メッセージを削除",
+    })[0];
+    await user.click(deleteButton);
 
-    expect(dispatchSpy).toHaveBeenCalled();
+    const confirmButton = screen.getByRole("button", { name: "削除" });
+    await user.click(confirmButton);
+
+    // expect(dispatchSpy).toHaveBeenCalledTimes(1);
     expect(dispatchSpy).toHaveBeenCalledWith(expect.any(Function));
   });
 
@@ -85,7 +90,9 @@ describe("MessagesList", () => {
       },
     );
 
-    await user.click(screen.getAllByRole("button", { name: "削除" })[0]);
+    await user.click(
+      screen.getAllByRole("button", { name: "メッセージを削除" })[0],
+    );
     await user.click(screen.getByRole("button", { name: "キャンセル" }));
 
     expect(dispatchSpy).not.toHaveBeenCalled();

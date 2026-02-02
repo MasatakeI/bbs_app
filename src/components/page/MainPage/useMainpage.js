@@ -5,7 +5,9 @@ import { useParams } from "react-router";
 
 import {
   selectAllChannels,
+  selectChannelsIsDeleting,
   selectChannelsIsLoading,
+  selectChannelsLastDeletedId,
 } from "@/redux/features/channels/channelsSelector";
 
 import { clearMessagesState } from "@/redux/features/messages/messagesSlice";
@@ -18,6 +20,8 @@ export const useMainPage = () => {
   const { channelId } = useParams();
   const dispatch = useDispatch();
   const isChannelsLoading = useSelector(selectChannelsIsLoading);
+  const isDeleting = useSelector(selectChannelsIsDeleting);
+  const lastDeletedId = useSelector(selectChannelsLastDeletedId);
 
   const channels = useSelector(selectAllChannels);
 
@@ -37,12 +41,12 @@ export const useMainPage = () => {
 
   // Snackbar通知
   useEffect(() => {
-    if (isReady && !isExist) {
+    if (isReady && !isExist && !isDeleting && channelId !== lastDeletedId) {
       dispatch(
         showSnackbar("チャンネルが存在しません。generalに移動しました。"),
       );
     }
-  }, [isReady, isExist, dispatch]);
+  }, [isReady, isExist, dispatch, isDeleting]);
 
   let redirectTo = null;
 

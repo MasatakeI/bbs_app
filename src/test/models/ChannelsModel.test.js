@@ -9,7 +9,6 @@ import {
   deleteChannel,
 } from "@/models/channels/ChannelsModel";
 
-import { newChannel } from "./__fixtures__/firestoreChannelData";
 import { ChannelsError } from "@/models/errors/channels/ChannelsError";
 import { CHANNELS_MODEL_ERROR_CODE } from "@/models/errors/channels/channelsErrorCode";
 import {
@@ -19,6 +18,8 @@ import {
   getDoc,
   getDocs,
   query,
+  setDoc,
+  writeBatch,
 } from "firebase/firestore";
 
 vi.mock("firebase/firestore", () => ({
@@ -28,87 +29,111 @@ vi.mock("firebase/firestore", () => ({
   getDocs: vi.fn(),
   orderBy: vi.fn(),
   doc: vi.fn(),
-  deleteDoc: vi.fn(),
-
-  getFirestore: vi.fn(),
+  setDoc: vi.fn(),
+  writeBatch: vi.fn(),
   collection: vi.fn(),
 }));
 
-const mockDocRef = { id: newChannel.id };
-
-const mockSnapShot = {
-  exists: () => true,
-  data: () => ({
-    ...newChannel,
-  }),
-};
+vi.mock("@/firebase/index", () => ({
+  channelsCollectionRef: { firestore: {} },
+  getChannelMessages: vi.fn(),
+}));
 
 const mockQuery = {};
 
 //ヘルパー関数
 
-const mockGetDocSuccess = () => {
-  getDoc.mockResolvedValue(mockSnapShot);
-};
+// const mockGetDocSuccess = () => {
+//   getDoc.mockResolvedValue(mockSnapShot);
+// };
 
-const mockAddChannelSuccess = () => {
-  addDoc.mockResolvedValue(mockDocRef);
-  mockGetDocSuccess();
-};
+// const mockAddChannelSuccess = () => {
+//   addDoc.mockResolvedValue(mockDocRef);
+//   mockGetDocSuccess();
+// };
 
 describe("ChannelsModel", () => {
+  const mockId = "test-channel-id";
+  const mockData = { name: "test Channel" };
+  const mockDocRef = { id: mockId, firestore: {} };
+
+  // const mockSnapShot = {
+  //   exists: () => true,
+  //   data: () => ({
+  //     id: mockId,
+  //     data: () => mockData,
+  //   }),
+  // };
+
+  const mockBatch = {
+    delete: vi.fn().mockReturnThis(),
+    commit: vi.fn().mockResolvedValue(),
+  };
   beforeEach(() => {
     vi.clearAllMocks();
+    writeBatch.mockReturnValue(mockBatch);
   });
 
   describe("_createChannel", () => {
     test("正常系:firestoreのデータを整形し,フォーマットされたChannelオブジェクトを返す", () => {
-      const result = _createChannel(newChannel.id, newChannel);
-      expect(result).toEqual(newChannel);
+      const result = _createChannel(mockId, mockData);
+      expect(result).toEqual({ id: mockId, name: mockData.name });
     });
 
     test("異常系:壊れたデータの場合,ChannelsErrorをスローする", () => {
-      expect(() =>
-        _createChannel(newChannel.id, { ...newChannel, name: 1 }),
-      ).toThrow(
-        new ChannelsError({ code: CHANNELS_MODEL_ERROR_CODE.INVALID_DATA }),
+      expect(() => _createChannel(mockId, { name: 1 })).toThrow(
+        new ChannelsError({
+          code: CHANNELS_MODEL_ERROR_CODE.INVALID_DATA,
+          message: "無効な値です",
+        }),
       );
     });
   });
 
   describe("addChannel", () => {
     test("正常系:新しいチャンネルを追加し,追加したチャンネルを返す", async () => {
-      mockAddChannelSuccess();
+      doc.mockReturnValue(mockDocRef);
+      getDoc.mockResolvedValue({ exists: () => false });
+      setDoc.mockResolvedValue();
 
-      const result = await addChannel({ name: mockSnapShot.data().name });
-      expect(result).toEqual(mockSnapShot.data());
+      const result = await addChannel({
+        id: mockId,
+        name: mockData.name,
+      });
+      expect(result).toEqual({ id: mockId, name: mockData.name });
 
-      expect(getDoc).toHaveBeenCalledWith(mockDocRef);
+      expect(setDoc).toHaveBeenCalledWith(mockDocRef, { name: mockData.name });
     });
 
     describe("異常系:", () => {
       test.each([
         {
-          title: "nameが空の時",
-          setup: () => {},
-          name: " ",
+          title: "IDまたはnameが空(空白を含む)の時",
+          // setup: () => {},
+          params: { id: " ", name: " " },
           code: CHANNELS_MODEL_ERROR_CODE.VALIDATION,
-          message: "1文字以上のチャンネル名を入力してください",
+          message: "IDとチャンネル名をどちらも入力してください",
         },
         {
-          title: "データが存在しない場合",
+          title: "既にIDが存在する場合",
           setup: () => {
-            addDoc.mockResolvedValue(mockDocRef);
-            getDoc.mockResolvedValue({ exists: () => false });
+            doc.mockReturnValue(mockDocRef);
+            getDoc.mockResolvedValue({ exists: () => true });
           },
-          name: "aa",
-          code: CHANNELS_MODEL_ERROR_CODE.UNKNOWN,
-          message: "チャンネルがありません",
+          params: { id: mockId, name: "自己紹介" },
+          code: CHANNELS_MODEL_ERROR_CODE.ALREADY_EXISTS,
+          message: "指定されたIDのチャンネルは既に存在します",
         },
-      ])("$title", async ({ setup, name, code, message }) => {
+        {
+          title: "チャンネルIDが無効な型の場合",
+          params: { id: "ああああ", name: "TestChannel" },
+          code: CHANNELS_MODEL_ERROR_CODE.VALIDATION,
+          message:
+            "チャンネルIDは半角英数字、ハイフン、アンダースコアのみ使用可能です",
+        },
+      ])("$title", async ({ setup, params, code, message }) => {
         setup?.();
-
-        await expect(addChannel({ name })).rejects.toThrow(
+        await expect(addChannel(params)).rejects.toThrow(
           new ChannelsError({
             code,
             message,
@@ -122,12 +147,12 @@ describe("ChannelsModel", () => {
     test("正常系:firestoreからchannelsを取得する", async () => {
       query.mockReturnValue(mockQuery);
       getDocs.mockResolvedValue({
-        docs: [{ id: mockSnapShot.data().id, data: () => mockSnapShot.data() }],
+        docs: [{ id: mockId, data: () => mockData }],
       });
 
       const result = await fetchChannels();
 
-      expect(result).toEqual([mockSnapShot.data()]);
+      expect(result).toEqual([{ id: mockId, name: mockData.name }]);
 
       expect(query).toHaveBeenCalledTimes(1);
     });
@@ -147,23 +172,33 @@ describe("ChannelsModel", () => {
   describe("deleteChannel", () => {
     test("正常系:指定したChannelを削除し削除前のChannelを返す", async () => {
       doc.mockReturnValue(mockDocRef);
-      getDoc.mockResolvedValue(mockSnapShot);
-      deleteDoc.mockResolvedValue();
+      getDoc.mockResolvedValue({
+        exists: () => true,
+        id: mockId,
+        data: () => mockData,
+      });
 
-      const result = await deleteChannel(mockSnapShot.data().id);
-      expect(result).toEqual(mockSnapShot.data());
+      const mockMessageDocs = [{ ref: "msg1" }, { ref: "msg2" }];
 
-      expect(doc).toHaveBeenCalledTimes(1);
-      expect(getDoc).toHaveBeenCalledWith(mockDocRef);
-      expect(deleteDoc).toHaveBeenCalledWith(mockDocRef);
+      getDocs.mockResolvedValue({
+        forEach: (callback) => mockMessageDocs.forEach(callback),
+      });
+
+      const result = await deleteChannel(mockId);
+
+      expect(result).toEqual({ id: mockId, name: mockData.name });
+
+      expect(mockBatch.delete).toHaveBeenCalledTimes(
+        mockMessageDocs.length + 1,
+      );
+      expect(mockBatch.commit).toHaveBeenCalled();
     });
 
-    test("異常系:削除対象のデータがない場合ChannelErrorをスローする", async () => {
+    test("異常系:削除対象のデータがない場合NOT_FOUNDをスローする", async () => {
       doc.mockReturnValue(mockDocRef);
       getDoc.mockResolvedValue({ exists: () => false });
-      deleteDoc.mockResolvedValue();
 
-      await expect(deleteChannel(mockDocRef.id)).rejects.toThrow(
+      await expect(deleteChannel(mockId)).rejects.toThrow(
         new ChannelsError({
           code: CHANNELS_MODEL_ERROR_CODE.NOT_FOUND,
         }),

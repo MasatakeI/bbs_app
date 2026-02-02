@@ -1,6 +1,7 @@
 // practice/bbs_app/src/test/utils/remderHookWithStore.jsx
 
 import React, { useLayoutEffect, useState } from "react";
+import { vi } from "vitest";
 
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
@@ -21,6 +22,8 @@ export const renderHookWithStore = ({
     reducer: reducers,
     preloadedState,
   });
+
+  const dispatchSpy = vi.spyOn(store, "dispatch");
 
   const HistoryRouter = ({ history, children }) => {
     const [state, setState] = useState({
@@ -52,5 +55,5 @@ export const renderHookWithStore = ({
     </Provider>
   );
 
-  return { ...renderHook(() => hook(), { wrapper }), store };
+  return { ...renderHook(() => hook(), { wrapper }), store, dispatchSpy };
 };

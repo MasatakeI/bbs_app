@@ -12,6 +12,7 @@ export const channelsInitialState = {
   error: null,
 
   isDeleting: false,
+  lastDeletedId: null,
 };
 
 const channelsSlice = createSlice({
@@ -27,6 +28,11 @@ const channelsSlice = createSlice({
       .addCase(addChannelAsync.fulfilled, (state, action) => {
         state.canPost = true;
         state.channels.push(action.payload);
+        state.channels.sort((a, b) => {
+          if (a.name < b.name) return -1;
+          if (a.name > b.name) return 1;
+          return 0;
+        });
         state.error = null;
       })
 
@@ -44,6 +50,7 @@ const channelsSlice = createSlice({
 
       .addCase(deleteChannelAsync.pending, (state, action) => {
         state.isDeleting = true;
+        state.lastDeletedId = action.meta.arg.id;
       })
       .addCase(deleteChannelAsync.fulfilled, (state, action) => {
         state.isDeleting = false;

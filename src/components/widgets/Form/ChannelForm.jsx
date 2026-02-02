@@ -20,7 +20,7 @@ const ChannelForm = ({ isOpen, onClose }) => {
             <input
               type="text"
               className="channel-input"
-              placeholder="ID (半角英数)"
+              placeholder="ID(半角英数)"
               value={form.id}
               onChange={(e) => setForm({ ...form, id: e.target.value })}
             />
@@ -45,6 +45,7 @@ const ChannelForm = ({ isOpen, onClose }) => {
                   onClose();
                   setForm({ id: "", name: "" });
                 }}
+                variant="tertiary"
               >
                 キャンセル
               </Button>

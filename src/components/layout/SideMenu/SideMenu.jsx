@@ -1,44 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import "./SideMenu.css";
-
-import { useDispatch, useSelector } from "react-redux";
-import {
-  selectAllChannels,
-  selectChannelsIsLoading,
-} from "@/redux/features/channels/channelsSelector";
-
 import { NavLink } from "react-router";
-import {
-  deleteChannelAsync,
-  fetchChannelsAsync,
-} from "@/redux/features/channels/channelsThunks";
 
 import LoadingSpinner from "@/components/common/LoadingSpinner/LoadingSpinner";
 import ChannelForm from "@/components/widgets/Form/ChannelForm";
+import Modal from "@/components/common/Modal/Modal";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash, faXmark } from "@fortawesome/free-solid-svg-icons";
-import Modal from "@/components/common/Modal/Modal";
+import { useSideMenu } from "./useSideMenu";
 
 const SideMenu = () => {
-  const dispatch = useDispatch();
-  const channels = useSelector(selectAllChannels);
-  const isLoading = useSelector(selectChannelsIsLoading);
-
-  const [textBoxOpen, setTextBoxOpen] = useState(false);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
-  const [targetId, setTargetId] = useState("");
-
-  useEffect(() => {
-    dispatch(fetchChannelsAsync());
-  }, [dispatch]);
-
-  const confirmDelete = async () => {
-    await dispatch(deleteChannelAsync({ id: targetId })).unwrap();
-    setIsModalOpen(false);
-  };
+  const {
+    channels,
+    isLoading,
+    textBoxOpen,
+    setTextBoxOpen,
+    toggleTextBox,
+    isModalOpen,
+    modalMessage,
+    openDeleteModal,
+    closeDeleteModal,
+    confirmDelete,
+  } = useSideMenu();
 
   const channelsContent = () => {
     if (isLoading) {
@@ -54,7 +38,11 @@ const SideMenu = () => {
         <ul className="menu-list">
           {channels.map(({ id, name }) => {
             return (
-              <li className="menu-item" key={id}>
+              <li
+                className="menu-item"
+                key={id}
+                // aria-label="channel-list"
+              >
                 <NavLink
                   to={`/channels/${id}`}
                   className={({ isActive }) =>
@@ -64,11 +52,7 @@ const SideMenu = () => {
                   {name}
                 </NavLink>
                 <button
-                  onClick={() => {
-                    setIsModalOpen(true);
-                    setModalMessage(name);
-                    setTargetId(id);
-                  }}
+                  onClick={() => openDeleteModal(id, name)}
                   className="channel-delete-button"
                   title="削除"
                 >
@@ -81,12 +65,9 @@ const SideMenu = () => {
 
         <div className="action-button-container">
           <button
-            onClick={
-              textBoxOpen
-                ? () => setTextBoxOpen(false)
-                : () => setTextBoxOpen(true)
-            }
+            onClick={toggleTextBox}
             className={`action-button ${!textBoxOpen ? "add" : "cancel"}`}
+            title="トグルボタン"
           >
             <FontAwesomeIcon icon={!textBoxOpen ? faPlus : faXmark} />
           </button>
@@ -107,7 +88,7 @@ const SideMenu = () => {
       {channelsContent()}{" "}
       <Modal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={closeDeleteModal}
         title={"このチャンネルを削除しますか?"}
         message={modalMessage}
         onConfirm={confirmDelete}

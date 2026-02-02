@@ -5,11 +5,18 @@ import { renderWithStore } from "@/test/utils/remderWithStore";
 import channelsReducer from "@/redux/features/channels/channelsSlice";
 import SideMenu from "@/components/layout/SideMenu/SideMenu";
 
-import { mockChannels } from "@/test/models/__fixtures__/firestoreChannelData";
 import { MemoryRouter } from "react-router";
 
 import * as channelsThunks from "@/redux/features/channels/channelsThunks";
 import userEvent from "@testing-library/user-event";
+import { mockChannelViewData } from "../../__fixtures__/channelViewData";
+
+vi.mock("@/components/widgets/Form/ChannelForm", () => ({
+  default: () => <div data-testid="channel-form">ChannelForm</div>,
+}));
+vi.mock("@/components/common/Modal/Modal", () => ({
+  default: () => <div data-testid="delete-modal">DeleteModal</div>,
+}));
 
 vi.mock("@/redux/features/channels/channelsThunks", async () => {
   const mockThunk = (base) =>
@@ -37,52 +44,6 @@ describe("SideMenu", () => {
     vi.clearAllMocks();
   });
 
-  test("マウント時fetchChannelsAsyncがdispatchされる", () => {
-    const { dispatchSpy } = renderWithStore(<SideMenu />, {
-      reducers: { channels: channelsReducer },
-      preloadedState: {
-        channels: {
-          channels: [],
-          isLoading: false,
-          error: null,
-        },
-      },
-    });
-
-    // expect(dispatchSpy).toHaveBeenCalledWith({
-    //   type: "channels/fetchChannels",
-    // });
-
-    expect(dispatchSpy).toHaveBeenCalledWith(expect.any(Function));
-  });
-
-  test("channelsとChannelTextBoxが表示される", () => {
-    renderWithStore(
-      <MemoryRouter>
-        <SideMenu />
-      </MemoryRouter>,
-      {
-        reducers: { channels: channelsReducer },
-        preloadedState: {
-          channels: {
-            channels: mockChannels,
-            isLoading: false,
-            error: null,
-          },
-        },
-      },
-    );
-
-    const links = screen.getAllByRole("link", { name: "channel-name" });
-    expect(links).toHaveLength(mockChannels.length);
-
-    mockChannels.forEach(({ name }) => {
-      expect(screen.getByText(name)).toBeInTheDocument();
-    });
-
-    expect(screen.getByPlaceholderText("ここに入力")).toBeInTheDocument();
-  });
-
   test("isLoading=trueの時,スピナーを表示", () => {
     renderWithStore(
       <MemoryRouter>
@@ -105,31 +66,82 @@ describe("SideMenu", () => {
     ).toBeInTheDocument();
   });
 
-  // test("error時,再読み込みボタンが表示され,クリックで再dispatchされる", async () => {
-  //   const user = userEvent.setup();
+  test("channelsとChannelFormが表示される", () => {
+    renderWithStore(
+      <MemoryRouter>
+        <SideMenu />
+      </MemoryRouter>,
+      {
+        reducers: { channels: channelsReducer },
+        preloadedState: {
+          channels: {
+            channels: mockChannelViewData,
+            isLoading: false,
+            error: null,
+          },
+        },
+      },
+    );
 
-  //   const { dispatchSpy } = renderWithStore(
-  //     <MemoryRouter>
-  //       <SideMenu />
-  //     </MemoryRouter>,
-  //     {
-  //       reducers: { channels: channelsReducer },
-  //       preloadedState: {
-  //         channels: {
-  //           channels: [],
-  //           isLoading: false,
-  //           error: "error",
-  //         },
-  //       },
-  //     },
-  //   );
+    mockChannelViewData.forEach((ch) => {
+      expect(screen.getByText(ch.name)).toBeInTheDocument();
+    });
 
-  //   const fetchButton = screen.getByRole("button", { name: "再読み込み" });
+    const listItems = screen.getAllByRole("listitem");
+    expect(listItems).toHaveLength(mockChannelViewData.length);
 
-  //   expect(fetchButton).toBeInTheDocument();
+    const deleteButton = screen.getAllByTitle("削除");
+    expect(deleteButton).toHaveLength(mockChannelViewData.length);
 
-  //   await user.click(fetchButton);
-  //   expect(dispatchSpy).toHaveBeenNthCalledWith(1, expect.any(Function));
-  //   expect(dispatchSpy).toHaveBeenNthCalledWith(2, expect.any(Function));
-  // });
+    const actionButton = screen.getByTitle("トグルボタン");
+    expect(actionButton).toBeInTheDocument();
+  });
+
+  test("追加ボタン（＋）をクリックした時に ChannelFormが出現する", async () => {
+    const user = userEvent.setup();
+    renderWithStore(
+      <MemoryRouter>
+        <SideMenu />
+      </MemoryRouter>,
+      {
+        reducers: { channels: channelsReducer },
+        preloadedState: {
+          channels: {
+            channels: mockChannelViewData,
+            isLoading: false,
+            error: null,
+          },
+        },
+      },
+    );
+    const actionButton = screen.getByTitle("トグルボタン");
+
+    await user.click(actionButton);
+
+    expect(screen.getByTestId("channel-form")).toBeInTheDocument();
+  });
+
+  test("削除ボタン（ゴミ箱）をクリックした時に、削除確認モーダルが表示される", async () => {
+    const user = userEvent.setup();
+    renderWithStore(
+      <MemoryRouter>
+        <SideMenu />
+      </MemoryRouter>,
+      {
+        reducers: { channels: channelsReducer },
+        preloadedState: {
+          channels: {
+            channels: mockChannelViewData,
+            isLoading: false,
+            error: null,
+          },
+        },
+      },
+    );
+    const deleteButtons = screen.getAllByTitle("削除");
+
+    await user.click(deleteButtons[0]);
+
+    expect(screen.getByTestId("delete-modal")).toBeInTheDocument();
+  });
 });

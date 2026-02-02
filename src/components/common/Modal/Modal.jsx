@@ -14,18 +14,19 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 export default function Modal({ isOpen, onClose, title, message, onConfirm }) {
+  const titleId = "alert-dialog-title";
+  const descriptionId = "alert-dialog-description";
   return (
     <React.Fragment>
       <Dialog
         open={isOpen}
-        slots={{
-          transition: Transition,
-        }}
         onClose={onClose}
-        aria-describedby="alert-dialog-slide-description"
+        aria-describedby={descriptionId}
+        aria-labelledby={titleId}
+        slots={{ transition: Transition }}
         disableRestoreFocus
       >
-        <DialogTitle>{title}</DialogTitle>
+        <DialogTitle id={titleId}>{title}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">
             {message}

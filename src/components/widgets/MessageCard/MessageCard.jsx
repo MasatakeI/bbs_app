@@ -11,8 +11,12 @@ const MessageCard = ({ body, date, id, onDelete }) => {
     <div className="message-card">
       <div className="message-header">
         <div className="message-date">{date}</div>
-        <button className="message-button delete" onClick={() => onDelete(id)}>
-          <FontAwesomeIcon icon={faTrash} role="img" aria-label="icon" />
+        <button
+          className="message-button delete"
+          onClick={() => onDelete(id)}
+          aria-label="メッセージを削除"
+        >
+          <FontAwesomeIcon icon={faTrash} aria-hidden="true" />
         </button>
       </div>
 
