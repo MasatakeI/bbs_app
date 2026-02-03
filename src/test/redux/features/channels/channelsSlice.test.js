@@ -17,8 +17,8 @@ import {
 import { CHANNELS_MODEL_ERROR_CODE } from "@/models/errors/channels/channelsErrorCode";
 
 //ヘルパー関数
-const applyPending = (slice, thunk, prev = channelsInitialState) =>
-  slice(prev, thunk.pending(prev));
+const applyPending = (slice, thunk, prev = channelsInitialState, arg = {}) =>
+  slice(prev, thunk.pending("requestId", arg));
 
 const applyFulfilled = (slice, thunk, payload, prev) =>
   slice(prev, thunk.fulfilled(payload));
@@ -35,23 +35,38 @@ describe("channelsSlice", () => {
       error: null,
 
       isDeleting: false,
+      lastDeletedId: null,
     });
   });
   describe("正常系:pendingからfulfilledに遷移し状態を更新する", () => {
-    test("addChannelAsync:isLoadingをfalseに戻し,channelsにpayloadを追加する", async () => {
-      const pending = applyPending(channelsSlice, addChannelAsync);
-      expect(pending).toEqual({ ...channelsInitialState, canPost: false });
+    test("addChannelAsync:isLoadingをfalseに戻し,channelsにpayloadをsortして追加する", async () => {
+      const stateWithChannels = {
+        ...channelsInitialState,
+        channels: mockChannels,
+      };
+      const pending = applyPending(
+        channelsSlice,
+        addChannelAsync,
+        stateWithChannels,
+      );
+      expect(pending).toEqual({ ...stateWithChannels, canPost: false });
 
       const fulfilled = applyFulfilled(
         channelsSlice,
         addChannelAsync,
         newChannel,
+        pending,
       );
-      expect(fulfilled).toEqual({
+
+      const expectedChannels = [...mockChannels, newChannel].sort((a, b) => {
+        if (a.name < b.name) return -1;
+        if (a.name > b.name) return 1;
+        return 0;
+      });
+      expect(fulfilled).toStrictEqual({
         ...pending,
         canPost: true,
-
-        channels: [newChannel],
+        channels: expectedChannels,
         error: null,
       });
     });
@@ -64,6 +79,7 @@ describe("channelsSlice", () => {
         channelsSlice,
         fetchChannelsAsync,
         mockChannels,
+        pending,
       );
       expect(fulfilled).toEqual({
         ...pending,
@@ -77,18 +93,21 @@ describe("channelsSlice", () => {
         ...channelsInitialState,
         channels: mockChannels,
       };
+      const targetChannel = mockChannels.find((channel) => channel.id === 1);
+
       const pending = applyPending(
         channelsSlice,
         deleteChannelAsync,
         stateWithChannels,
+        { id: targetChannel.id },
       );
+
       expect(pending).toEqual({
         ...stateWithChannels,
         isDeleting: true,
+        lastDeletedId: targetChannel.id,
         error: null,
       });
-
-      const targetChannel = mockChannels.find((channel) => channel.id === 1);
 
       const fulfilled = applyFulfilled(
         channelsSlice,
@@ -124,9 +143,11 @@ describe("channelsSlice", () => {
       const rejected = applyRejected(channelsSlice, thunk, error, pending);
 
       expect(rejected).toMatchObject({
+        canPost: true,
         isLoading: false,
         error,
         isDeleting: false,
+        lastDeletedId: null,
       });
     });
   });

@@ -67,6 +67,7 @@ const channelsSlice = createSlice({
 
         state.error = action.payload;
         state.isDeleting = false;
+        state.lastDeletedId = null;
       });
   },
 });

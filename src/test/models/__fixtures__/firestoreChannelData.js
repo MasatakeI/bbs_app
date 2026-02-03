@@ -4,4 +4,4 @@ export const mockChannels = [
   { id: 3, name: "Channel3" },
 ];
 
-export const newChannel = { id: 4, name: "Channel4" };
+export const newChannel = { id: 0, name: "Channel0" };
