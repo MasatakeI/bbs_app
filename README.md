@@ -11,6 +11,12 @@ Firebase Firestoreをバックエンドに、Redux Toolkitを状態管理に採�
 
 ---
 
+## デモ / リンク
+
+- ![デモ](./assets/gif_1.gif)
+
+---
+
 ## 🏗 アーキテクチャ構成
 
 「関心の分離（Separation of Concerns）」を徹底するため、以下の3レイヤー構造を採用しています。
