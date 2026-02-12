@@ -13,7 +13,7 @@ Firebase Firestoreをバックエンドに、Redux Toolkitを状態管理に採�
 
 ## デモ / リンク
 
-- ![デモ](./assets/gif_1.gif)
+- ![デモ](./assets/demo_1.gif)
 
 ---
 
